@@ -1,7 +1,14 @@
-print("AI Bet Bot v0.1")
+from analyzer import analyze_match
 
-print("Система запущена")
+def main():
+    team1 = "Real Madrid"
+    team2 = "Barcelona"
 
-bank = 1000
+    result = analyze_match(team1, team2)
 
-print(f"Початковий банк: {bank} грн")
+    print("Матч:", result["team1"], "-", result["team2"])
+    print("Ймовірність:", result["confidence"], "%")
+    print("Рекомендація:", result["recommendation"])
+
+if __name__ == "__main__":
+    main()
