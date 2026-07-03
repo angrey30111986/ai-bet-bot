@@ -1,12 +1,13 @@
 from analyzer import analyze_match
 
-home = "Реал Мадрид"
-away = "Барселона"
+def main():
+    result = analyze_match("Реал Мадрид", "Барселона")
 
-result = analyze_match(home, away)
+    print("=== ПРОГНОЗ ===")
+    print("Матч:", "Реал Мадрид", "-", "Барселона")
+    print("Переможець:", result["winner"])
+    print("Ймовірність:", str(result["confidence"]) + "%")
+    print("Ставка:", result["prediction"])
 
-print("=== ПРОГНОЗ ===")
-print(f"Матч: {home} - {away}")
-print(f"Переможець: {result['winner']}")
-print(f"Ймовірність: {result['confidence']}%")
-print(f"Ставка: {result['prediction']}")
+if __name__ == "__main__":
+    main()
