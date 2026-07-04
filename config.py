@@ -1,3 +1,1 @@
-BANK = 1000
-RISK = 0.02
-MIN_CONFIDENCE = 0.80
+API_KEY = "ТУТ_ТВІЙ_API_КЛЮЧ"
