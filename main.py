@@ -1,13 +1,5 @@
-from analyzer import analyze_match
+from analyzer import get_matches
 
-def main():
-    result = analyze_match("Реал Мадрид", "Барселона")
+data = get_matches()
 
-    print("=== ПРОГНОЗ ===")
-    print("Матч:", "Реал Мадрид", "-", "Барселона")
-    print("Переможець:", result["winner"])
-    print("Ймовірність:", str(result["confidence"]) + "%")
-    print("Ставка:", result["prediction"])
-
-if __name__ == "__main__":
-    main()
+print(data)
