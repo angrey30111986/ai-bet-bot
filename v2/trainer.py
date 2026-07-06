@@ -2,27 +2,30 @@ import pandas as pd
 import joblib
 
 from catboost import CatBoostClassifier
-from features import create_features
 
-print("Loading matches...")
+from dataset import build_dataset
 
+
+# Завантаження матчів
 df = pd.read_csv("matches.csv")
 
-df = create_features(df)
+# Побудова датасету
+df = build_dataset(df)
 
+# Ознаки
 features = [
-    "home_form",
-    "away_form",
-    "home_attack",
-    "away_attack"
+    "home_elo",
+    "away_elo",
+    "elo_diff",
+    "home_rest",
+    "away_rest",
+    "rest_diff"
 ]
 
-X = df[features].fillna(0)
-
+X = df[features]
 y = df["result"]
 
-print("Training AI...")
-
+# Навчання моделі
 model = CatBoostClassifier(
     iterations=1000,
     learning_rate=0.03,
@@ -33,6 +36,7 @@ model = CatBoostClassifier(
 
 model.fit(X, y)
 
+# Збереження моделі
 joblib.dump(model, "football_ai.pkl")
 
-print("AI model saved.")
+print("Навчання завершено!")
