@@ -1,15 +1,21 @@
-import pandas as pd
+from elo import get
 
-def create_features(df):
+from form import form
 
-    df["goal_diff"] = df["home_goals"] - df["away_goals"]
+def features(home, away):
 
-    df["total_goals"] = df["home_goals"] + df["away_goals"]
+    return {
 
-    df["home_win"] = (df["home_goals"] > df["away_goals"]).astype(int)
+        "home_elo": get(home),
 
-    df["draw"] = (df["home_goals"] == df["away_goals"]).astype(int)
+        "away_elo": get(away),
 
-    df["away_win"] = (df["home_goals"] < df["away_goals"]).astype(int)
+        "elo_diff": get(home)-get(away),
 
-    return df
+        "home_form": form(home),
+
+        "away_form": form(away),
+
+        "form_diff": form(home)-form(away)
+
+    }
