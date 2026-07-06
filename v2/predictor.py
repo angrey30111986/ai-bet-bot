@@ -1,29 +1,36 @@
-import joblib
-import pandas as pd
-
-# Завантаження моделі
-model = joblib.load("football_ai.pkl")
+from collector import collect_data
 
 
-def predict(features):
-    """
-    features = {
-        "elo_diff": ...,
-        "fatigue_diff": ...,
-        "form_diff": ...,
-        "home_advantage": ...,
-        "goal_diff": ...
-    }
-    """
+def predict(home_team, away_team, fixture_id):
 
-    df = pd.DataFrame([features])
+    data = collect_data(
+        home_team,
+        away_team,
+        fixture_id
+    )
 
-    prediction = model.predict(df)[0]
-    probabilities = model.predict_proba(df)[0]
+    home = 50
+
+    if data["elo_diff"] > 100:
+        home += 10
+
+    if data["home_rest_days"] > data["away_rest_days"]:
+        home += 5
+
+    if data["home_injuries"] < data["away_injuries"]:
+        home += 5
+
+    if data["temperature"] > 30:
+        home -= 2
+
+    if data["wind"] > 25:
+        home -= 2
+
+    draw = 100 - home
+    away = 100 - home - draw // 2
 
     return {
-        "prediction": prediction,
-        "home": round(probabilities[0] * 100, 1),
-        "draw": round(probabilities[1] * 100, 1),
-        "away": round(probabilities[2] * 100, 1)
+        "home": round(home),
+        "draw": round(draw / 2),
+        "away": round(away)
     }
