@@ -6,40 +6,84 @@ headers = {
     "x-apisports-key": API_KEY
 }
 
-LEAGUES = [39, 140, 78, 61, 94, 135, 253, 71, 144, 88]
-SEASONS = [2022, 2023, 2024, 2025]
+LEAGUES = [
+    39,   # England
+    140,  # Spain
+    78,   # Germany
+    61,   # France
+    94,   # Portugal
+    135,  # Italy
+    253,  # MLS
+    71,   # Brazil
+    144,  # Belgium
+    88    # Netherlands
+]
+
+SEASONS = [
+    2022,
+    2023,
+    2024,
+    2025
+]
 
 rows = []
 
 for league in LEAGUES:
+
     for season in SEASONS:
 
         print(f"League {league} Season {season}")
 
-        url = f"https://v3.football.api-sports.io/fixtures?league={league}&season={season}"
+        url = "https://v3.football.api-sports.io/fixtures"
 
-        data = requests.get(url, headers=headers).json()["response"]
+        params = {
+            "league": league,
+            "season": season
+        }
+
+        response = requests.get(
+            url,
+            headers=headers,
+            params=params
+        )
+
+        data = response.json()["response"]
 
         for match in data:
 
             if match["fixture"]["status"]["short"] != "FT":
                 continue
 
-            home = match["teams"]["home"]["name"]
-            away = match["teams"]["away"]["name"]
-
-            hg = match["goals"]["home"]
-            ag = match["goals"]["away"]
-
             rows.append({
-                "home": home,
-                "away": away,
-                "home_goals": hg,
-                "away_goals": ag
+
+                "date": match["fixture"]["date"],
+
+                "league": league,
+
+                "season": season,
+
+                "home_id": match["teams"]["home"]["id"],
+
+                "away_id": match["teams"]["away"]["id"],
+
+                "home_team": match["teams"]["home"]["name"],
+
+                "away_team": match["teams"]["away"]["name"],
+
+                "home_goals": match["goals"]["home"],
+
+                "away_goals": match["goals"]["away"]
+
             })
 
 df = pd.DataFrame(rows)
 
 df.to_csv("matches.csv", index=False)
 
-print("Saved", len(df), "matches")
+print("================================")
+
+print("Matches saved:", len(df))
+
+print(df.head())
+
+print("================================")
