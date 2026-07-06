@@ -1,54 +1,29 @@
 import joblib
 import pandas as pd
 
-# Завантажуємо модель
+# Завантаження моделі
 model = joblib.load("football_ai.pkl")
 
 
-def predict(
-    home_elo,
-    away_elo,
-    home_rest,
-    away_rest
-):
+def predict(features):
+    """
+    features = {
+        "elo_diff": ...,
+        "fatigue_diff": ...,
+        "form_diff": ...,
+        "home_advantage": ...,
+        "goal_diff": ...
+    }
+    """
 
-    data = pd.DataFrame([{
+    df = pd.DataFrame([features])
 
-        "home_elo": home_elo,
-        "away_elo": away_elo,
-        "elo_diff": home_elo - away_elo,
-
-        "home_rest": home_rest,
-        "away_rest": away_rest,
-        "rest_diff": home_rest - away_rest
-
-    }])
-
-    probs = model.predict_proba(data)[0]
+    prediction = model.predict(df)[0]
+    probabilities = model.predict_proba(df)[0]
 
     return {
-
-        "П1": round(probs[0] * 100, 2),
-        "Х": round(probs[1] * 100, 2),
-        "П2": round(probs[2] * 100, 2),
-
-        "впевненість": round(max(probs) * 100, 2)
-
+        "prediction": prediction,
+        "home": round(probabilities[0] * 100, 1),
+        "draw": round(probabilities[1] * 100, 1),
+        "away": round(probabilities[2] * 100, 1)
     }
-
-
-if __name__ == "__main__":
-
-    print(
-
-        predict(
-
-            1650,
-            1580,
-
-            7,
-            4
-
-        )
-
-    )
