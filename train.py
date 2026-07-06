@@ -12,7 +12,7 @@ df = create_features(df)
 X = df[[
     "goal_diff",
     "total_goals"
-]]
+]].fillna(0)
 
 y = df["result"]
 
