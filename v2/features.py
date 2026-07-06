@@ -1,80 +1,36 @@
 import pandas as pd
 
-def create_features(df):
+from elo import get
+from form import get_form
+from fatigue import days_since_last
 
-    df = df.sort_values("date").reset_index(drop=True)
 
-    home_form = []
-    away_form = []
+def create_features(match):
 
-    home_attack = []
-    away_attack = []
+    home = match["home_team"]
+    away = match["away_team"]
 
-    history = {}
+    home_elo = get(home)
+    away_elo = get(away)
 
-    for _, row in df.iterrows():
+    home_form = get_form(home)
+    away_form = get_form(away)
 
-        home = row["home_team"]
-        away = row["away_team"]
+    home_rest = days_since_last(home, match["date"])
+    away_rest = days_since_last(away, match["date"])
 
-        if home not in history:
-            history[home] = []
+    return {
 
-        if away not in history:
-            history[away] = []
+        "home_elo": home_elo,
+        "away_elo": away_elo,
+        "elo_diff": home_elo - away_elo,
 
-        home_games = history[home][-5:]
-        away_games = history[away][-5:]
+        "home_form": home_form,
+        "away_form": away_form,
+        "form_diff": home_form - away_form,
 
-        if len(home_games) == 0:
-            home_form.append(0)
-            home_attack.append(0)
-        else:
-            home_form.append(sum(home_games) / len(home_games))
-            home_attack.append(
-                sum(g["scored"] for g in home_games) / len(home_games)
-            )
+        "home_rest": home_rest,
+        "away_rest": away_rest,
+        "rest_diff": home_rest - away_rest
 
-        if len(away_games) == 0:
-            away_form.append(0)
-            away_attack.append(0)
-        else:
-            away_form.append(sum(away_games) / len(away_games))
-            away_attack.append(
-                sum(g["scored"] for g in away_games) / len(away_games)
-            )
-
-        if row["home_goals"] > row["away_goals"]:
-            home_points = 3
-            away_points = 0
-        elif row["home_goals"] < row["away_goals"]:
-            home_points = 0
-            away_points = 3
-        else:
-            home_points = 1
-            away_points = 1
-
-        history[home].append({
-            "points": home_points,
-            "scored": row["home_goals"]
-        })
-
-        history[away].append({
-            "points": away_points,
-            "scored": row["away_goals"]
-        })
-
-    df["home_form"] = home_form
-    df["away_form"] = away_form
-
-    df["home_attack"] = home_attack
-    df["away_attack"] = away_attack
-
-    df["result"] = df.apply(
-        lambda x: 0 if x.home_goals > x.away_goals
-        else 1 if x.home_goals == x.away_goals
-        else 2,
-        axis=1
-    )
-
-    return df
+    }
