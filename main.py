@@ -1,1 +1,1 @@
-from collector import *
+from train import *
