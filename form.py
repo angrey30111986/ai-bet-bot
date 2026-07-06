@@ -1,19 +1,17 @@
-import requests
-from config import API_KEY
+from collections import defaultdict
 
-headers = {
-    "x-apisports-key": API_KEY
-}
+history = defaultdict(list)
 
-def last_matches(team_id):
+def add(team, result):
 
-    url = f"https://v3.football.api-sports.io/fixtures"
+    history[team].append(result)
 
-    params = {
-        "team": team_id,
-        "last": 5
-    }
+    if len(history[team]) > 5:
+        history[team].pop(0)
 
-    response = requests.get(url, headers=headers, params=params)
+def form(team):
 
-    return response.json()
+    if team not in history:
+        return 0
+
+    return sum(history[team])
