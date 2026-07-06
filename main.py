@@ -1,8 +1,9 @@
 from analyzer import get_matches
+from predict import predict
 
 data = get_matches()
 
-for match in data["response"]:
+for match in data["response"][:10]:
 
     home = match["teams"]["home"]["name"]
     away = match["teams"]["away"]["name"]
@@ -10,17 +11,12 @@ for match in data["response"]:
     hg = match["goals"]["home"]
     ag = match["goals"]["away"]
 
-    print("---------------------")
+    home_form = 8
+    away_form = 5
+
+    result, chance = predict(home_form, away_form)
+
+    print("-------------------------")
     print(home, "-", away)
-    print("Рахунок:", hg, ":", ag)
-
-    if hg is not None and ag is not None:
-
-        if hg > ag:
-            print("Лідирує домашня команда")
-
-        elif ag > hg:
-            print("Лідирує гості")
-
-        else:
-            print("Нічия")
+    print("Прогноз:", result)
+    print("Ймовірність:", str(chance) + "%")
