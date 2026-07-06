@@ -1,89 +1,28 @@
-import requests
-import pandas as pd
-from config import API_KEY
+from elo import get_elo
+from fatigue import get_fatigue
+from injuries import get_injuries
+from cards import get_cards
+from weather import get_weather
 
-headers = {
-    "x-apisports-key": API_KEY
-}
 
-LEAGUES = [
-    39,   # England
-    140,  # Spain
-    78,   # Germany
-    61,   # France
-    94,   # Portugal
-    135,  # Italy
-    253,  # MLS
-    71,   # Brazil
-    144,  # Belgium
-    88    # Netherlands
-]
+def collect_data(home_team, away_team, fixture_id):
 
-SEASONS = [
-    2022,
-    2023,
-    2024,
-    2025
-]
+    elo = get_elo(home_team, away_team)
 
-rows = []
+    fatigue = get_fatigue(home_team, away_team)
 
-for league in LEAGUES:
+    injuries = get_injuries(fixture_id)
 
-    for season in SEASONS:
+    cards = get_cards(fixture_id)
 
-        print(f"League {league} Season {season}")
+    weather = get_weather(fixture_id)
 
-        url = "https://v3.football.api-sports.io/fixtures"
+    data = {}
 
-        params = {
-            "league": league,
-            "season": season
-        }
+    data.update(elo)
+    data.update(fatigue)
+    data.update(injuries)
+    data.update(cards)
+    data.update(weather)
 
-        response = requests.get(
-            url,
-            headers=headers,
-            params=params
-        )
-
-        data = response.json()["response"]
-
-        for match in data:
-
-            if match["fixture"]["status"]["short"] != "FT":
-                continue
-
-            rows.append({
-
-                "date": match["fixture"]["date"],
-
-                "league": league,
-
-                "season": season,
-
-                "home_id": match["teams"]["home"]["id"],
-
-                "away_id": match["teams"]["away"]["id"],
-
-                "home_team": match["teams"]["home"]["name"],
-
-                "away_team": match["teams"]["away"]["name"],
-
-                "home_goals": match["goals"]["home"],
-
-                "away_goals": match["goals"]["away"]
-
-            })
-
-df = pd.DataFrame(rows)
-
-df.to_csv("matches.csv", index=False)
-
-print("================================")
-
-print("Matches saved:", len(df))
-
-print(df.head())
-
-print("================================")
+    return data
