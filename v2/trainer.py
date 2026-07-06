@@ -1,42 +1,33 @@
 import pandas as pd
 import joblib
 
-from catboost import CatBoostClassifier
+from sklearn.ensemble import RandomForestClassifier
 
-from dataset import build_dataset
-
+from features import create_features
 
 # Завантаження матчів
 df = pd.read_csv("matches.csv")
 
-# Побудова датасету
-df = build_dataset(df)
+# Створення ознак
+df = create_features(df)
 
-# Ознаки
-features = [
-    "home_elo",
-    "away_elo",
-    "elo_diff",
-    "home_rest",
-    "away_rest",
-    "rest_diff"
-]
-
-X = df[features]
+# Ціль
 y = df["result"]
 
+# Ознаки
+X = df.drop(columns=["result"])
+
 # Навчання моделі
-model = CatBoostClassifier(
-    iterations=1000,
-    learning_rate=0.03,
-    depth=8,
-    loss_function="MultiClass",
-    verbose=100
+model = RandomForestClassifier(
+    n_estimators=500,
+    max_depth=15,
+    random_state=42,
+    n_jobs=-1
 )
 
 model.fit(X, y)
 
-# Збереження моделі
+# Збереження
 joblib.dump(model, "football_ai.pkl")
 
-print("Навчання завершено!")
+print("Модель навчена!")
