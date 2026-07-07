@@ -1,4 +1,5 @@
-from predictor import predict_match
+from predictor import predict
+
 
 def main():
     print("=== AI BET BOT ===")
@@ -6,9 +7,13 @@ def main():
     home = input("Домашня команда: ")
     away = input("Гостьова команда: ")
 
-    result = predict_match(home, away)
+    result = predict(home, away, 0)
 
-    print(result)
+    print("\nПрогноз:")
+    print(f"🏠 Домашня: {result['home']}%")
+    print(f"🤝 Нічия: {result['draw']}%")
+    print(f"✈️ Гості: {result['away']}%")
+
 
 if __name__ == "__main__":
     main()
