@@ -12,7 +12,13 @@ MODEL_FILE = os.path.join(BASE_DIR, "models", "football_ai.pkl")
 
 def train():
 
+    if not os.path.exists(DATA_FILE):
+        raise FileNotFoundError(DATA_FILE)
+
     df = pd.read_csv(DATA_FILE)
+
+    if len(df) < 10:
+        raise Exception("Not enough matches for training")
 
     features = create_features(df)
 
