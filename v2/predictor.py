@@ -1,13 +1,8 @@
 from collector import collect_data
 
 
-def predict(home_team, away_team, fixture_id):
-
-    data = collect_data(
-        home_team,
-        away_team,
-        fixture_id
-    )
+def predict_match(home_team, away_team, fixture_id=None):
+    data = collect_data(home_team, away_team, fixture_id)
 
     home = 50
 
