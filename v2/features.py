@@ -1,8 +1,7 @@
 import pandas as pd
 
-from elo import get
-from form import get_form
-from fatigue import days_since_last
+from elo import get_elo
+from fatigue import get_fatigue
 
 
 def create_features(df):
@@ -14,29 +13,28 @@ def create_features(df):
         home = match["home_team"]
         away = match["away_team"]
 
-        home_elo = get(home)
-        away_elo = get(away)
+        elo = get_elo(home, away)
 
-        home_form = get_form(home)
-        away_form = get_form(away)
-
-        home_rest = days_since_last(home, match["date"])
-        away_rest = days_since_last(away, match["date"])
+        fatigue = get_fatigue(home, away)
 
         rows.append({
-            "home_elo": home_elo,
-            "away_elo": away_elo,
-            "elo_diff": home_elo - away_elo,
 
-            "home_form": home_form,
-            "away_form": away_form,
-            "form_diff": home_form - away_form,
+            "home_elo": elo["home_elo"],
+            "away_elo": elo["away_elo"],
+            "elo_diff": elo["elo_diff"],
 
-            "home_rest": home_rest,
-            "away_rest": away_rest,
-            "rest_diff": home_rest - away_rest,
+            "home_rest": fatigue["home_rest_days"],
+            "away_rest": fatigue["away_rest_days"],
+            "rest_diff":
+                fatigue["home_rest_days"]
+                -
+                fatigue["away_rest_days"],
+
+            "home_goals": match["home_goals"],
+            "away_goals": match["away_goals"],
 
             "result": match["result"]
+
         })
 
     return pd.DataFrame(rows)
