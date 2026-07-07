@@ -1,33 +1,39 @@
-import pandas as pd
+import os
 import joblib
+import pandas as pd
 
 from sklearn.ensemble import RandomForestClassifier
 
 from features import create_features
 
-# Завантаження матчів
-df = pd.read_csv("matches.csv")
 
-# Створення ознак
-df = create_features(df)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MATCHES_FILE = os.path.join(BASE_DIR, "data", "matches.csv")
+MODEL_FILE = os.path.join(BASE_DIR, "models", "football_ai.pkl")
 
-# Ціль
-y = df["result"]
 
-# Ознаки
-X = df.drop(columns=["result"])
+def train():
 
-# Навчання моделі
-model = RandomForestClassifier(
-    n_estimators=500,
-    max_depth=15,
-    random_state=42,
-    n_jobs=-1
-)
+    df = pd.read_csv(MATCHES_FILE)
 
-model.fit(X, y)
+    df = create_features(df)
 
-# Збереження
-joblib.dump(model, "football_ai.pkl")
+    y = df["result"]
 
-print("Модель навчена!")
+    X = df.drop(columns=["result"])
+
+    model = RandomForestClassifier(
+        n_estimators=500,
+        max_depth=15,
+        random_state=42
+    )
+
+    model.fit(X, y)
+
+    joblib.dump(model, MODEL_FILE)
+
+    print("Model saved:", MODEL_FILE)
+
+
+if __name__ == "__main__":
+    train()
