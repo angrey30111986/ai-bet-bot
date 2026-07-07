@@ -1,58 +1,96 @@
+import os
 import pandas as pd
 
-from elo import get, update
-from fatigue import days_since_last
-from form import get_form, update_form
+# Шлях до папки data
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_DIR = os.path.join(BASE_DIR, "data")
+MATCHES_FILE = os.path.join(DATA_DIR, "matches.csv")
+
+REQUIRED_COLUMNS = [
+    "date",
+    "league",
+    "home_team",
+    "away_team",
+    "home_goals",
+    "away_goals",
+    "result"
+]
 
 
-def build_dataset(df):
+def load_matches():
+    """
+    Завантажити історію матчів.
+    """
 
-    df = df.sort_values("date").reset_index(drop=True)
+    if not os.path.exists(MATCHES_FILE):
+        raise FileNotFoundError(
+            f"Не знайдено файл {MATCHES_FILE}"
+        )
 
-    rows = []
+    df = pd.read_csv(MATCHES_FILE)
 
-    for _, match in df.iterrows():
+    if df.empty:
+        print("Увага: matches.csv поки порожній.")
+        return df
 
-        home = match["home_team"]
-        away = match["away_team"]
+    for column in REQUIRED_COLUMNS:
+        if column not in df.columns:
+            raise Exception(
+                f"Відсутня колонка: {column}"
+            )
 
-        home_elo = get(home)
-        away_elo = get(away)
+    return df
 
-        home_form = get_form(home)
-        away_form = get_form(away)
 
-        home_rest = days_since_last(home, match["date"])
-        away_rest = days_since_last(away, match["date"])
+def matches_count():
+    """
+    Кількість матчів.
+    """
 
-        if match["home_goals"] > match["away_goals"]:
-            result = 0
+    df = load_matches()
 
-        elif match["home_goals"] == match["away_goals"]:
-            result = 1
+    return len(df)
 
-        else:
-            result = 2
 
-        rows.append({
+def leagues():
+    """
+    Список ліг.
+    """
 
-            "home_elo": home_elo,
-            "away_elo": away_elo,
-            "elo_diff": home_elo - away_elo,
+    df = load_matches()
 
-            "home_form": home_form,
-            "away_form": away_form,
-            "form_diff": home_form - away_form,
+    if df.empty:
+        return []
 
-            "home_rest": home_rest,
-            "away_rest": away_rest,
-            "rest_diff": home_rest - away_rest,
+    return sorted(df["league"].unique())
 
-            "result": result
 
-        })
+def teams():
+    """
+    Список команд.
+    """
 
-        update(home, away, result)
-        update_form(home, away, result)
+    df = load_matches()
 
-    return pd.DataFrame(rows)
+    if df.empty:
+        return []
+
+    home = list(df["home_team"].unique())
+    away = list(df["away_team"].unique())
+
+    return sorted(list(set(home + away)))
+
+
+if __name__ == "__main__":
+
+    data = load_matches()
+
+    print(data.head())
+
+    print()
+
+    print("Матчів:", matches_count())
+
+    print("Команд:", len(teams()))
+
+    print("Ліг:", len(leagues()))
