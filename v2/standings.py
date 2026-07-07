@@ -1,44 +1,42 @@
 import requests
-from config import BASE_URL, HEADERS
+from config import API_KEY
+
+URL = "https://v3.football.api-sports.io/standings"
+
+HEADERS = {
+    "x-apisports-key": API_KEY
+}
 
 
-def get_standings(league_id, season, team_id):
-
-    url = f"{BASE_URL}/standings"
-
+def get_standings(league_id, season):
     response = requests.get(
-        url,
+        URL,
         headers=HEADERS,
         params={
             "league": league_id,
             "season": season
-        }
+        },
+        timeout=20
     )
 
     if response.status_code != 200:
         return None
 
-    data = response.json().get("response", [])
+    data = response.json()
 
-    if not data:
+    if not data["response"]:
         return None
 
-    try:
-        standings = data[0]["league"]["standings"][0]
+    return data["response"][0]["league"]["standings"][0]
 
-        for team in standings:
-            if team["team"]["id"] == team_id:
-                return {
-                    "rank": team["rank"],
-                    "points": team["points"],
-                    "goals_diff": team["goalsDiff"],
-                    "played": team["all"]["played"],
-                    "wins": team["all"]["win"],
-                    "draws": team["all"]["draw"],
-                    "losses": team["all"]["lose"]
-                }
 
-    except Exception:
-        return None
+if __name__ == "__main__":
+    table = get_standings(39, 2025)
 
-    return None
+    if table:
+        for team in table[:5]:
+            print(
+                team["rank"],
+                team["team"]["name"],
+                team["points"]
+            )
