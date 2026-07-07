@@ -10,7 +10,6 @@ def expected(a, b):
 
 
 def update(home, away, result):
-
     ra = ratings[home]
     rb = ratings[away]
 
@@ -18,21 +17,19 @@ def update(home, away, result):
     eb = expected(rb, ra)
 
     if result == 0:
-        sa = 1
-        sb = 0
-
+        sa, sb = 1, 0
     elif result == 1:
-        sa = 0.5
-        sb = 0.5
-
+        sa, sb = 0.5, 0.5
     else:
-        sa = 0
-        sb = 1
+        sa, sb = 0, 1
 
     ratings[home] += K * (sa - ea)
     ratings[away] += K * (sb - eb)
 
 
-def get(team):
-
-    return ratings[team]
+def get_elo(home_team, away_team):
+    return {
+        "home_elo": ratings[home_team],
+        "away_elo": ratings[away_team],
+        "elo_diff": ratings[home_team] - ratings[away_team]
+    }
