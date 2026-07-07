@@ -6,14 +6,18 @@ from sklearn.ensemble import RandomForestClassifier
 from features import create_features
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 DATA_FILE = os.path.join(BASE_DIR, "data", "matches.csv")
-MODEL_FILE = os.path.join(BASE_DIR, "models", "football_ai.pkl")
+MODEL_DIR = os.path.join(BASE_DIR, "models")
+MODEL_FILE = os.path.join(MODEL_DIR, "football_ai.pkl")
 
 
 def train():
 
     if not os.path.exists(DATA_FILE):
-        raise FileNotFoundError(DATA_FILE)
+        raise FileNotFoundError(f"Dataset not found: {DATA_FILE}")
+
+    os.makedirs(MODEL_DIR, exist_ok=True)
 
     df = pd.read_csv(DATA_FILE)
 
@@ -36,7 +40,14 @@ def train():
 
     joblib.dump(model, MODEL_FILE)
 
+    print("=" * 40)
     print("MODEL SAVED")
+    print("MODEL PATH:", MODEL_FILE)
+    print("FILE EXISTS:", os.path.exists(MODEL_FILE))
+
+    if os.path.exists(MODEL_FILE):
+        print("FILE SIZE:", os.path.getsize(MODEL_FILE), "bytes")
+    print("=" * 40)
 
 
 if __name__ == "__main__":
