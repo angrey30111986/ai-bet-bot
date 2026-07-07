@@ -1,50 +1,40 @@
 import requests
+from config import API_KEY
 
-API_KEY = "03b997d33e6e88f7b1dc3e9f179d7f17"
+URL = "https://v3.football.api-sports.io/fixtures"
 
-headers = {
+HEADERS = {
     "x-apisports-key": API_KEY
 }
 
 
 def get_weather(fixture_id):
-    url = "https://v3.football.api-sports.io/fixtures"
-
     response = requests.get(
-        url,
-        headers=headers,
-        params={"id": fixture_id}
+        URL,
+        headers=HEADERS,
+        params={
+            "id": fixture_id
+        },
+        timeout=20
     )
 
     if response.status_code != 200:
-        return {
-            "temperature": 20,
-            "wind": 0,
-            "rain": 0
-        }
+        return None
 
-    data = response.json()["response"]
+    data = response.json()
 
-    if not data:
-        return {
-            "temperature": 20,
-            "wind": 0,
-            "rain": 0
-        }
+    if not data["response"]:
+        return None
 
-    fixture = data[0]
-
-    weather = fixture.get("weather")
-
-    if not weather:
-        return {
-            "temperature": 20,
-            "wind": 0,
-            "rain": 0
-        }
+    fixture = data["response"][0]
 
     return {
-        "temperature": weather.get("temperature", 20),
-        "wind": weather.get("wind", 0),
-        "rain": weather.get("rain", 0)
+        "temperature": fixture.get("fixture", {}).get("temperature"),
+        "weather": fixture.get("fixture", {}).get("weather"),
+        "wind": fixture.get("fixture", {}).get("wind"),
+        "humidity": fixture.get("fixture", {}).get("humidity")
     }
+
+
+if __name__ == "__main__":
+    print(get_weather(1035038))
