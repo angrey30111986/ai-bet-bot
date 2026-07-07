@@ -15,7 +15,7 @@ MODEL_FILE = os.path.join(MODEL_DIR, "football_ai.pkl")
 def train():
 
     if not os.path.exists(DATA_FILE):
-        raise FileNotFoundError(f"Dataset not found: {DATA_FILE}")
+        raise FileNotFoundError(f"Dataset not found:\n{DATA_FILE}")
 
     os.makedirs(MODEL_DIR, exist_ok=True)
 
@@ -40,14 +40,18 @@ def train():
 
     joblib.dump(model, MODEL_FILE)
 
-    print("=" * 40)
+    print("=" * 60)
     print("MODEL SAVED")
-    print("MODEL PATH:", MODEL_FILE)
+    print("MODEL PATH:")
+    print(MODEL_FILE)
     print("FILE EXISTS:", os.path.exists(MODEL_FILE))
 
     if os.path.exists(MODEL_FILE):
         print("FILE SIZE:", os.path.getsize(MODEL_FILE), "bytes")
-    print("=" * 40)
+        print("FILES IN MODELS:")
+        print(os.listdir(MODEL_DIR))
+
+    print("=" * 60)
 
 
 if __name__ == "__main__":
