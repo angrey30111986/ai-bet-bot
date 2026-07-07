@@ -2,6 +2,7 @@ from collector import collect_data
 
 
 def predict(home_team, away_team, fixture_id=None):
+
     data = collect_data(home_team, away_team, fixture_id)
 
     home = 50
@@ -15,22 +16,21 @@ def predict(home_team, away_team, fixture_id=None):
     if data.get("home_injuries", 0) < data.get("away_injuries", 0):
         home += 5
 
-    if data.get("temperature") is not None:
-        if data["temperature"] > 30:
+    temperature = data.get("temperature")
+
+    if isinstance(temperature, (int, float)):
+        if temperature > 30:
             home -= 2
 
-    if data.get("wind") is not None:
-        if data["wind"] > 25:
+    wind = data.get("wind")
+
+    if isinstance(wind, (int, float)):
+        if wind > 25:
             home -= 2
 
-    if home > 90:
-        home = 90
-
-    if home < 5:
-        home = 5
+    home = max(5, min(90, home))
 
     draw = 25
-
     away = 100 - home - draw
 
     return {
