@@ -1,35 +1,31 @@
 import requests
-from config import BASE_URL, HEADERS
+from config import API_KEY
+
+URL = "https://v3.football.api-sports.io/fixtures/lineups"
+
+HEADERS = {
+    "x-apisports-key": API_KEY
+}
 
 
-def get_lineup(fixture_id):
-
-    url = f"{BASE_URL}/fixtures/lineups"
-
+def get_lineups(fixture_id):
     response = requests.get(
-        url,
+        URL,
         headers=HEADERS,
-        params={
-            "fixture": fixture_id
-        }
+        params={"fixture": fixture_id},
+        timeout=20
     )
 
     if response.status_code != 200:
         return None
 
-    data = response.json().get("response", [])
+    data = response.json()
 
-    if len(data) < 2:
+    if not data["response"]:
         return None
 
-    home = data[0]
-    away = data[1]
+    return data["response"]
 
-    return {
-        "home_formation": home.get("formation", ""),
-        "away_formation": away.get("formation", ""),
-        "home_coach": home.get("coach", {}).get("name", ""),
-        "away_coach": away.get("coach", {}).get("name", ""),
-        "home_starting": len(home.get("startXI", [])),
-        "away_starting": len(away.get("startXI", []))
-    }
+
+if __name__ == "__main__":
+    print(get_lineups(1035038))
