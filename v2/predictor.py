@@ -13,21 +13,41 @@ def predict(home_team, away_team, fixture_id=None):
 
     data = collect_data(home_team, away_team, fixture_id)
 
+    home_goals = 0
+    away_goals = 0
+
     X = pd.DataFrame([{
         "home_elo": data["home_elo"],
         "away_elo": data["away_elo"],
         "elo_diff": data["elo_diff"],
+
         "home_rest": data["home_rest_days"],
         "away_rest": data["away_rest_days"],
         "rest_diff": data["home_rest_days"] - data["away_rest_days"],
-        "home_injuries": data["home_injuries"],
-        "away_injuries": data["away_injuries"]
+
+        "home_goals": home_goals,
+        "away_goals": away_goals,
+
+        "goal_diff": 0,
+        "total_goals": 0
     }])
 
     proba = model.predict_proba(X)[0]
 
-    return {
-        "home": round(proba[2] * 100),
-        "draw": round(proba[1] * 100),
-        "away": round(proba[0] * 100)
+    classes = model.classes_
+
+    result = {
+        "home": 0,
+        "draw": 0,
+        "away": 0
     }
+
+    for cls, p in zip(classes, proba):
+        if cls == 0:
+            result["home"] = round(p * 100)
+        elif cls == 1:
+            result["draw"] = round(p * 100)
+        elif cls == 2:
+            result["away"] = round(p * 100)
+
+    return result
