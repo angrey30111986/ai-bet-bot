@@ -5,32 +5,38 @@ from form import get_form
 from fatigue import days_since_last
 
 
-def create_features(match):
+def create_features(df):
 
-    home = match["home_team"]
-    away = match["away_team"]
+    rows = []
 
-    home_elo = get(home)
-    away_elo = get(away)
+    for _, match in df.iterrows():
 
-    home_form = get_form(home)
-    away_form = get_form(away)
+        home = match["home_team"]
+        away = match["away_team"]
 
-    home_rest = days_since_last(home, match["date"])
-    away_rest = days_since_last(away, match["date"])
+        home_elo = get(home)
+        away_elo = get(away)
 
-    return {
+        home_form = get_form(home)
+        away_form = get_form(away)
 
-        "home_elo": home_elo,
-        "away_elo": away_elo,
-        "elo_diff": home_elo - away_elo,
+        home_rest = days_since_last(home, match["date"])
+        away_rest = days_since_last(away, match["date"])
 
-        "home_form": home_form,
-        "away_form": away_form,
-        "form_diff": home_form - away_form,
+        rows.append({
+            "home_elo": home_elo,
+            "away_elo": away_elo,
+            "elo_diff": home_elo - away_elo,
 
-        "home_rest": home_rest,
-        "away_rest": away_rest,
-        "rest_diff": home_rest - away_rest
+            "home_form": home_form,
+            "away_form": away_form,
+            "form_diff": home_form - away_form,
 
-    }
+            "home_rest": home_rest,
+            "away_rest": away_rest,
+            "rest_diff": home_rest - away_rest,
+
+            "result": match["result"]
+        })
+
+    return pd.DataFrame(rows)
