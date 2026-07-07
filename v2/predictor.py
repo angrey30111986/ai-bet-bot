@@ -1,31 +1,40 @@
 from collector import collect_data
 
 
-def predict_match(home_team, away_team, fixture_id=None):
+def predict(home_team, away_team, fixture_id=None):
     data = collect_data(home_team, away_team, fixture_id)
 
     home = 50
 
-    if data["elo_diff"] > 100:
+    if data.get("elo_diff", 0) > 100:
         home += 10
 
-    if data["home_rest_days"] > data["away_rest_days"]:
+    if data.get("home_rest_days", 0) > data.get("away_rest_days", 0):
         home += 5
 
-    if data["home_injuries"] < data["away_injuries"]:
+    if data.get("home_injuries", 0) < data.get("away_injuries", 0):
         home += 5
 
-    if data["temperature"] > 30:
-        home -= 2
+    if data.get("temperature") is not None:
+        if data["temperature"] > 30:
+            home -= 2
 
-    if data["wind"] > 25:
-        home -= 2
+    if data.get("wind") is not None:
+        if data["wind"] > 25:
+            home -= 2
 
-    draw = 100 - home
-    away = 100 - home - draw // 2
+    if home > 90:
+        home = 90
+
+    if home < 5:
+        home = 5
+
+    draw = 25
+
+    away = 100 - home - draw
 
     return {
-        "home": round(home),
-        "draw": round(draw / 2),
-        "away": round(away)
+        "home": home,
+        "draw": draw,
+        "away": away
     }
