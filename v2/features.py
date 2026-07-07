@@ -1,5 +1,4 @@
 import pandas as pd
-
 from elo import get_elo
 from fatigue import get_fatigue
 
@@ -10,11 +9,10 @@ def create_features(df):
 
     for _, match in df.iterrows():
 
-        home = match["home_team"]
-        away = match["away_team"]
+        home = str(match["home_team"])
+        away = str(match["away_team"])
 
         elo = get_elo(home, away)
-
         fatigue = get_fatigue(home, away)
 
         rows.append({
@@ -25,15 +23,15 @@ def create_features(df):
 
             "home_rest": fatigue["home_rest_days"],
             "away_rest": fatigue["away_rest_days"],
-            "rest_diff":
-                fatigue["home_rest_days"]
-                -
-                fatigue["away_rest_days"],
+            "rest_diff": fatigue["home_rest_days"] - fatigue["away_rest_days"],
 
-            "home_goals": match["home_goals"],
-            "away_goals": match["away_goals"],
+            "home_goals": int(match["home_goals"]),
+            "away_goals": int(match["away_goals"]),
 
-            "result": match["result"]
+            "goal_diff": int(match["home_goals"]) - int(match["away_goals"]),
+            "total_goals": int(match["home_goals"]) + int(match["away_goals"]),
+
+            "result": int(match["result"])
 
         })
 
