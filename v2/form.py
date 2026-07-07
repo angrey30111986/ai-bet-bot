@@ -3,29 +3,19 @@ from collections import defaultdict
 history = defaultdict(list)
 
 
+def add_result(team, points):
+
+    history[team].append(points)
+
+    if len(history[team]) > 5:
+        history[team].pop(0)
+
+
 def get_form(team):
 
-    games = history[team][-5:]
+    games = history[team]
 
     if not games:
-        return 0.5
+        return 0
 
     return sum(games) / len(games)
-
-
-def update_form(home, away, result):
-
-    if result == 0:
-
-        history[home].append(1)
-        history[away].append(0)
-
-    elif result == 1:
-
-        history[home].append(0.5)
-        history[away].append(0.5)
-
-    else:
-
-        history[home].append(0)
-        history[away].append(1)
