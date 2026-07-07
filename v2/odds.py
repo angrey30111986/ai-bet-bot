@@ -1,36 +1,35 @@
 import requests
-from config import BASE_URL, HEADERS
+from config import API_KEY
+
+URL = "https://v3.football.api-sports.io/odds"
+
+HEADERS = {
+    "x-apisports-key": API_KEY
+}
 
 
 def get_odds(fixture_id):
-
-    url = f"{BASE_URL}/odds"
-
     response = requests.get(
-        url,
+        URL,
         headers=HEADERS,
         params={
             "fixture": fixture_id
-        }
+        },
+        timeout=20
     )
 
     if response.status_code != 200:
         return None
 
-    data = response.json().get("response", [])
+    data = response.json()
 
-    if not data:
+    if not data["response"]:
         return None
 
-    try:
-        bookmaker = data[0]["bookmakers"][0]
-        bet = bookmaker["bets"][0]["values"]
+    return data["response"]
 
-        return {
-            "home_odds": float(bet[0]["odd"]),
-            "draw_odds": float(bet[1]["odd"]),
-            "away_odds": float(bet[2]["odd"])
-        }
 
-    except Exception:
-        return None
+if __name__ == "__main__":
+    odds = get_odds(1035038)
+
+    print(odds)
