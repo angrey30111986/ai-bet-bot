@@ -3,6 +3,8 @@ import joblib
 import pandas as pd
 
 from sklearn.ensemble import RandomForestClassifier
+
+from elo import build_elo
 from features import create_features
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -24,7 +26,14 @@ def train():
     if len(df) < 10:
         raise Exception("Not enough matches for training")
 
+    # Будуємо Elo по всіх історичних матчах
+    build_elo(df)
+
+    # Створюємо ознаки
     features = create_features(df)
+
+    if "result" not in features.columns:
+        raise Exception("Column 'result' not found")
 
     y = features.pop("result")
 
@@ -42,14 +51,11 @@ def train():
 
     print("=" * 60)
     print("MODEL SAVED")
-    print("MODEL PATH:")
-    print(MODEL_FILE)
+    print("MODEL PATH:", MODEL_FILE)
     print("FILE EXISTS:", os.path.exists(MODEL_FILE))
 
     if os.path.exists(MODEL_FILE):
         print("FILE SIZE:", os.path.getsize(MODEL_FILE), "bytes")
-        print("FILES IN MODELS:")
-        print(os.listdir(MODEL_DIR))
 
     print("=" * 60)
 
