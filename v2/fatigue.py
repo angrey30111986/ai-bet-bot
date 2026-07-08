@@ -3,38 +3,52 @@ from datetime import datetime
 last_match = {}
 
 
-def days_since_last(team, match_date):
-
-    current = datetime.fromisoformat(
-        match_date.replace("Z", "+00:00")
-    )
-
-    if team not in last_match:
-        last_match[team] = current
-        return 7
-
-    days = (current - last_match[team]).days
-
-    last_match[team] = current
-
-    if days < 0:
-        days = 0
-
-    return days
-
-
 def get_fatigue(home_team, away_team, fixture=None):
 
-    if fixture is None:
+    home_rest = 7
+    away_rest = 7
 
-        return {
-            "home_rest_days": 7,
-            "away_rest_days": 7
-        }
+    if fixture is not None:
 
-    match_date = fixture["fixture"]["date"]
+        # Працює і з API-Football, і з matches.csv
+        if isinstance(fixture, dict):
+
+            if "fixture" in fixture:
+                match_date = fixture["fixture"]["date"]
+            else:
+                match_date = fixture.get("date")
+
+            if match_date:
+
+                if "T" in str(match_date):
+                    current = datetime.fromisoformat(
+                        str(match_date).replace("Z", "")
+                    )
+                else:
+                    current = datetime.strptime(
+                        str(match_date),
+                        "%Y-%m-%d"
+                    )
+
+                if home_team in last_match:
+                    home_rest = (
+                        current - last_match[home_team]
+                    ).days
+
+                if away_team in last_match:
+                    away_rest = (
+                        current - last_match[away_team]
+                    ).days
+
+                last_match[home_team] = current
+                last_match[away_team] = current
 
     return {
-        "home_rest_days": days_since_last(home_team, match_date),
-        "away_rest_days": days_since_last(away_team, match_date)
+        "home_rest_days": max(home_rest, 0),
+        "away_rest_days": max(away_rest, 0)
     }
+
+
+def reset():
+
+    last_match.clear()
