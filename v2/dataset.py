@@ -4,6 +4,15 @@ import pandas as pd
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MATCHES_FILE = os.path.join(BASE_DIR, "data", "matches.csv")
 
+REQUIRED_COLUMNS = [
+    "date",
+    "home_team",
+    "away_team",
+    "home_goals",
+    "away_goals",
+    "result"
+]
+
 
 def load_dataset():
 
@@ -14,6 +23,20 @@ def load_dataset():
 
     if df.empty:
         raise ValueError("matches.csv is empty")
+
+    missing = [
+        c for c in REQUIRED_COLUMNS
+        if c not in df.columns
+    ]
+
+    if missing:
+        raise ValueError(
+            "Missing columns: " + ", ".join(missing)
+        )
+
+    df["date"] = pd.to_datetime(df["date"])
+
+    df = df.sort_values("date").reset_index(drop=True)
 
     return df
 
