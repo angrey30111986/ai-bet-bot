@@ -5,56 +5,58 @@ from cards import get_cards
 from weather import get_weather
 
 
-def collect_data(home_team, away_team, fixture_id=None):
+def collect_data(home_team, away_team, fixture_id=None, fixture=None):
 
     data = {}
 
+    # Elo
     data.update(get_elo(home_team, away_team))
-    data.update(get_fatigue(home_team, away_team))
 
-    if fixture_id:
+    # Відпочинок
+    data.update(get_fatigue(home_team, away_team, fixture))
 
-        injuries = get_injuries(fixture_id)
+    # Значення за замовчуванням
+    data.update({
+        "home_injuries": 0,
+        "away_injuries": 0,
+        "home_yellow": 0,
+        "away_yellow": 0,
+        "home_red": 0,
+        "away_red": 0,
+        "temperature": None,
+        "weather": None,
+        "wind": None,
+        "humidity": None
+    })
 
-        data["home_injuries"] = 0
-        data["away_injuries"] = 0
+    if not fixture_id:
+        return data
 
-        if isinstance(injuries, list):
+    # Травми
+    injuries = get_injuries(fixture_id)
 
-            for player in injuries:
+    if isinstance(injuries, list):
 
-                team = player.get("team", {}).get("name", "")
+        for player in injuries:
 
-                if team == home_team:
-                    data["home_injuries"] += 1
+            team = player.get("team", {}).get("name", "")
 
-                elif team == away_team:
-                    data["away_injuries"] += 1
+            if team == home_team:
+                data["home_injuries"] += 1
 
-        cards = get_cards(fixture_id)
+            elif team == away_team:
+                data["away_injuries"] += 1
 
-        if isinstance(cards, dict):
-            data.update(cards)
+    # Картки
+    cards = get_cards(fixture_id)
 
-        weather = get_weather(fixture_id)
+    if isinstance(cards, dict):
+        data.update(cards)
 
-        if isinstance(weather, dict):
-            data.update(weather)
+    # Погода
+    weather = get_weather(fixture_id)
 
-    else:
-
-        data["home_injuries"] = 0
-        data["away_injuries"] = 0
-
-        data["home_yellow"] = 0
-        data["away_yellow"] = 0
-
-        data["home_red"] = 0
-        data["away_red"] = 0
-
-        data["temperature"] = None
-        data["weather"] = None
-        data["wind"] = None
-        data["humidity"] = None
+    if isinstance(weather, dict):
+        data.update(weather)
 
     return data
