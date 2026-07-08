@@ -1,4 +1,5 @@
 import pandas as pd
+
 from elo import get_elo
 from fatigue import get_fatigue
 
@@ -17,20 +18,20 @@ def create_features(df):
 
         rows.append({
 
+            # Elo
             "home_elo": elo["home_elo"],
             "away_elo": elo["away_elo"],
             "elo_diff": elo["elo_diff"],
 
+            # Відпочинок
             "home_rest": fatigue["home_rest_days"],
             "away_rest": fatigue["away_rest_days"],
-            "rest_diff": fatigue["home_rest_days"] - fatigue["away_rest_days"],
+            "rest_diff": (
+                fatigue["home_rest_days"]
+                - fatigue["away_rest_days"]
+            ),
 
-            "home_goals": int(match["home_goals"]),
-            "away_goals": int(match["away_goals"]),
-
-            "goal_diff": int(match["home_goals"]) - int(match["away_goals"]),
-            "total_goals": int(match["home_goals"]) + int(match["away_goals"]),
-
+            # Результат (ціль)
             "result": int(match["result"])
 
         })
