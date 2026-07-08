@@ -3,8 +3,6 @@ import joblib
 import pandas as pd
 
 from sklearn.ensemble import RandomForestClassifier
-
-from elo import build_elo
 from features import create_features
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -26,14 +24,7 @@ def train():
     if len(df) < 10:
         raise Exception("Not enough matches for training")
 
-    # Будуємо Elo по всіх історичних матчах
-    build_elo(df)
-
-    # Створюємо ознаки
     features = create_features(df)
-
-    if "result" not in features.columns:
-        raise Exception("Column 'result' not found")
 
     y = features.pop("result")
 
