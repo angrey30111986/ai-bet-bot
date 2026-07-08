@@ -10,6 +10,7 @@ def expected(a, b):
 
 
 def update(home, away, result):
+
     ra = ratings[home]
     rb = ratings[away]
 
@@ -17,19 +18,39 @@ def update(home, away, result):
     eb = expected(rb, ra)
 
     if result == 0:
-        sa, sb = 1, 0
+        sa = 1
+        sb = 0
     elif result == 1:
-        sa, sb = 0.5, 0.5
+        sa = 0.5
+        sb = 0.5
     else:
-        sa, sb = 0, 1
+        sa = 0
+        sb = 1
 
-    ratings[home] += K * (sa - ea)
-    ratings[away] += K * (sb - eb)
+    ratings[home] = ra + K * (sa - ea)
+    ratings[away] = rb + K * (sb - eb)
+
+
+def build_elo(df):
+
+    ratings.clear()
+
+    for _, match in df.iterrows():
+
+        home = match["home_team"]
+        away = match["away_team"]
+        result = match["result"]
+
+        update(home, away, result)
 
 
 def get_elo(home_team, away_team):
+
+    home = ratings[home_team]
+    away = ratings[away_team]
+
     return {
-        "home_elo": ratings[home_team],
-        "away_elo": ratings[away_team],
-        "elo_diff": ratings[home_team] - ratings[away_team]
+        "home_elo": round(home, 2),
+        "away_elo": round(away, 2),
+        "elo_diff": round(home - away, 2)
     }
