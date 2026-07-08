@@ -31,26 +31,23 @@ def update(home, away, result):
     ratings[away] = rb + K * (sb - eb)
 
 
-def build_elo(df):
-
+def reset():
     ratings.clear()
 
-    for _, match in df.iterrows():
 
-        home = match["home_team"]
-        away = match["away_team"]
-        result = match["result"]
-
-        update(home, away, result)
-
-
-def get_elo(home_team, away_team):
-
-    home = ratings[home_team]
-    away = ratings[away_team]
+def get_elo(home, away):
 
     return {
-        "home_elo": round(home, 2),
-        "away_elo": round(away, 2),
-        "elo_diff": round(home - away, 2)
+        "home_elo": ratings[home],
+        "away_elo": ratings[away],
+        "elo_diff": ratings[home] - ratings[away]
     }
+
+
+def process_match(home, away, result):
+
+    elo = get_elo(home, away)
+
+    update(home, away, result)
+
+    return elo
